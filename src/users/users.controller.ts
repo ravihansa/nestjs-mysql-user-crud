@@ -15,12 +15,14 @@ export class UsersController {
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne(id);
+    const user = await this.usersService.findOne(id);
+    return { message: 'User data', data: user };
   }
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    const user = await this.usersService.create(createUserDto);
+    return { message: 'User created successfully', data: user };
   }
 
   @Patch(':id')
