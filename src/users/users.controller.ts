@@ -5,11 +5,12 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get('list')
   async findAll() {
-    return this.usersService.findAll();
+    const usersList = await this.usersService.findAll();
+    return { message: 'Users list', data: usersList };
   }
 
   @Get(':id')
