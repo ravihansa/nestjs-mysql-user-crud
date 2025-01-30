@@ -1,10 +1,12 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateCompanyDto {
 
+    @IsString()
     @IsNotEmpty()
     companyName: string;
 
+    @IsString()
     @IsNotEmpty()
     address: string;
 

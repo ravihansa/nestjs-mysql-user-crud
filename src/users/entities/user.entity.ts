@@ -32,11 +32,11 @@ export class User {
     @JoinTable({
         name: 'users_companies',
         joinColumn: {
-            name: 'usersId',
+            name: 'userId',
             referencedColumnName: 'id',
         },
         inverseJoinColumn: {
-            name: 'companiesId',
+            name: 'companyId',
             referencedColumnName: 'id',
         }
     })

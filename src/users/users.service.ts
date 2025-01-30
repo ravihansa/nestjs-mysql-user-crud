@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Company } from 'src/companies/entities/company.entity';
+import { CreateUserCompanyDto } from './dto/create-user-company.dto';
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Company) private readonly companyRepository: Repository<Company>
     ) { }
 
     async findAll(): Promise<User[]> {
@@ -38,5 +40,33 @@ export class UsersService {
     async remove(id: number): Promise<void> {
         const user = await this.findOne(id);
         await this.userRepository.remove(user);
+    }
+
+    async createUserCompany(createUserCompanyDto: CreateUserCompanyDto): Promise<User> {
+        const { fName, lName, userName, email, password, companyData } = createUserCompanyDto;
+
+        // Check if companies already exist, otherwise create new ones
+        const companyEntities = await Promise.all(
+            companyData.map(async (companyDto) => {
+                let company = await this.companyRepository.findOne({ where: { companyName: companyDto.companyName } });
+                if (!company) {
+                    company = this.companyRepository.create(companyDto);
+                    await this.companyRepository.save(company);
+                }
+                return company;
+            }),
+        );
+
+        // Create the User
+        const newUser = this.userRepository.create({
+            fName,
+            lName,
+            userName,
+            email,
+            password,
+            companies: companyEntities,
+        });
+
+        return this.userRepository.save(newUser);
     }
 }

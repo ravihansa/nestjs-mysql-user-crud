@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 import configuration from './config/configuration';
+import { CompanyModule } from './companies/company.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -25,7 +26,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       synchronize: configService.get<boolean>('DB_SYNC', false), // Use false in production
     }),
   }),
-    UsersModule,],
+    UsersModule, CompanyModule],
   controllers: [AppController],
   providers: [AppService],
 })

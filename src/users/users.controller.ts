@@ -1,6 +1,7 @@
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserCompanyDto } from './dto/create-user-company.dto';
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 
 @Controller('users')
@@ -36,5 +37,11 @@ export class UsersController {
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
+  }
+
+  @Post('company')
+  async createUserWithCompany(@Body() createUserCompanyDto: CreateUserCompanyDto) {
+    const user = await this.usersService.createUserCompany(createUserCompanyDto);
+    return { message: 'User created with companies successfully', data: user };
   }
 }
