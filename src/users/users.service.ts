@@ -42,7 +42,7 @@ export class UsersService {
         await this.userRepository.remove(user);
     }
 
-    async createUserCompany(createUserCompanyDto: CreateUserCompanyDto): Promise<User> {
+    async createUserWithCompany(createUserCompanyDto: CreateUserCompanyDto): Promise<User> {
         const { fName, lName, userName, email, password, companyData } = createUserCompanyDto;
 
         // Check if companies already exist, otherwise create new ones
@@ -68,5 +68,25 @@ export class UsersService {
         });
 
         return this.userRepository.save(newUser);
+    }
+
+    async findUserWithCompanyList(userId: number): Promise<User> {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['companies'],
+            select: {
+                id: true,
+                userName: true,
+                email: true,
+                companies: {
+                    id: true, //Always include id to avoid missing relations
+                    companyName: true
+                }
+            }
+        });
+        if (!user) {
+            throw new NotFoundException(`User with ID ${userId} not found`);
+        }
+        return user;
     }
 }

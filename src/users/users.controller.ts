@@ -41,7 +41,13 @@ export class UsersController {
 
   @Post('company')
   async createUserWithCompany(@Body() createUserCompanyDto: CreateUserCompanyDto) {
-    const user = await this.usersService.createUserCompany(createUserCompanyDto);
+    const user = await this.usersService.createUserWithCompany(createUserCompanyDto);
     return { message: 'User created with companies successfully', data: user };
+  }
+
+  @Get(':id/company')
+  async userWithCompanyList(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.usersService.findUserWithCompanyList(id);
+    return { message: 'User company data', data: user };
   }
 }
