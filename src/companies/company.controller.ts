@@ -37,4 +37,11 @@ export class CompanyController {
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.companyService.remove(id);
   }
+
+  @Get(':id/user')
+  async companyWithUserList(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.companyService.findCompanyWithUserList(id);
+    return { message: 'Company users data', data: user };
+  }
+
 }

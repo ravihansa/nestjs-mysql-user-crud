@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class CompanyService {
@@ -38,5 +38,24 @@ export class CompanyService {
     async remove(id: number): Promise<void> {
         const company = await this.findOne(id);
         await this.companyRepository.remove(company);
+    }
+
+    async findCompanyWithUserList(comId: number): Promise<Company> {
+        const company = await this.companyRepository
+            .createQueryBuilder('company')
+            .leftJoinAndSelect('company.users', 'user')
+            .select([
+                'company.id',
+                'company.companyName',
+                'user.id',
+                'user.userName',
+                'user.email'
+            ])
+            .where('company.id = :comId', { comId })
+            .getOne();
+        if (!company) {
+            throw new NotFoundException(`Company with ID ${comId} not found`);
+        }
+        return company;
     }
 }
