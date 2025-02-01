@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Company } from 'src/companies/entities/company.entity';
+import { hashPassword } from '../common/utils/hashPassword';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Company } from '../companies/entities/company.entity';
 import { CreateUserCompanyDto } from './dto/create-user-company.dto';
 
 @Injectable()
@@ -36,7 +37,11 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
-        const user = this.userRepository.create(createUserDto);
+        const hashedPw = await hashPassword(createUserDto.password);
+        const user = this.userRepository.create({
+            ...createUserDto,
+            password: hashedPw
+        });
         return await this.userRepository.save(user);
     }
 
@@ -53,7 +58,7 @@ export class UsersService {
 
     async createUserWithCompany(createUserCompanyDto: CreateUserCompanyDto): Promise<User> {
         const { fName, lName, userName, email, password, companyData } = createUserCompanyDto;
-
+        const hashedPw = await hashPassword(password);
         // Check if companies already exist, otherwise create new ones
         const companyEntities = await Promise.all(
             companyData.map(async (companyDto) => {
@@ -66,13 +71,13 @@ export class UsersService {
             }),
         );
 
-        // Create the User
+        // Create the User with companies
         const newUser = this.userRepository.create({
             fName,
             lName,
             userName,
             email,
-            password,
+            password: hashedPw,
             companies: companyEntities,
         });
 
