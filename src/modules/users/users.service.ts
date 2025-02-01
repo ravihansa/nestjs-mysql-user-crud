@@ -3,7 +3,7 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { hashPassword } from '../common/utils/hashPassword';
+import { hashPassword } from '../../common/utils/hashPassword';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Company } from '../companies/entities/company.entity';
 import { CreateUserCompanyDto } from './dto/create-user-company.dto';
