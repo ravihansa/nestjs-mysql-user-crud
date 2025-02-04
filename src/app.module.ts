@@ -11,6 +11,7 @@ import { AuthService } from './modules/auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -31,12 +32,27 @@ import { APP_GUARD } from '@nestjs/core';
       synchronize: configService.get<boolean>('DB_SYNC', false), // Use false in production
     }),
   }),
-    UsersModule, CompanyModule, AuthModule, JwtModule],
+  CacheModule.registerAsync({
+    isGlobal: true, // Makes CacheModule available throughout the app
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: async (configService: ConfigService) => ({
+      ttl: configService.get<number>('cacheTtl'), // Default cache expiration (milliseconds)
+      max: 1000, // Max cache items
+    }),
+  }),
+    UsersModule,
+    CompanyModule,
+    AuthModule,
+    JwtModule],
   controllers: [AppController],
-  providers: [AppService, AuthService, {
-    provide: APP_GUARD,
-    useClass: JwtAuthGuard,
-  }],
+  providers: [AppService,
+    AuthService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 
 export class AppModule { }

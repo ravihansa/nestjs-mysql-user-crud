@@ -10,4 +10,5 @@ export default () => ({
     },
     jwtSecret: process.env.JWT_SECRET || '',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1h',
+    cacheTtl: parseInt(process.env.CACHE_TTL ?? '1000', 10),
 });
