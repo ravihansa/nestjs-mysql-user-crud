@@ -1,7 +1,7 @@
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserCompanyDto } from './dto/create-user-company.dto';
 import { JoiValidationPipe } from '../../common/pipes/joi-validation.pipe';
 import { CreateUserCompanySchema } from './schemas/create-user-company.schema';
@@ -51,7 +51,7 @@ export class UsersController {
   }
 
   @Get(':id/company')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async userWithCompanyList(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findUserWithCompanyList(id);
     return { message: 'User company data', data: user };
