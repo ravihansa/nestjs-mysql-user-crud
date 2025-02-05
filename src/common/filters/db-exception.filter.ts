@@ -1,12 +1,17 @@
 import { Response } from 'express';
+import { Logger } from 'winston';
+import { logError } from '../utils/logger.util';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { QueryFailedError, EntityNotFoundError } from 'typeorm';
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Inject } from '@nestjs/common';
 
 @Catch(QueryFailedError, EntityNotFoundError)
 export class DbExceptionFilter implements ExceptionFilter {
+    constructor(@Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger) { }
     catch(exception: QueryFailedError, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
+        const request = ctx.getRequest();
 
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Database error occurred';
@@ -43,6 +48,9 @@ export class DbExceptionFilter implements ExceptionFilter {
                     break;
             }
         }
+
+        // Log the error
+        logError(this.logger, request, exception, status, message);
 
         response.status(status).json({
             status: false,

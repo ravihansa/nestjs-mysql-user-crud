@@ -12,6 +12,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
+import { WinstonModule } from 'nest-winston';
+import { winstonLogger } from './common/utils/logger';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -40,6 +42,9 @@ import { CacheModule } from '@nestjs/cache-manager';
       ttl: configService.get<number>('cacheTtl'), // Default cache expiration (milliseconds)
       max: 1000, // Max cache items
     }),
+  }),
+  WinstonModule.forRoot({
+    transports: winstonLogger.transports,
   }),
     UsersModule,
     CompanyModule,
