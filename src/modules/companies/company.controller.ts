@@ -1,8 +1,11 @@
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 
+@ApiTags('Company')
+@ApiBearerAuth()
 @Controller('companies')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) { }
@@ -39,6 +42,10 @@ export class CompanyController {
   }
 
   @Get(':id/user')
+  @ApiOperation({ summary: 'Get company users data.' })
+  @ApiResponse({ status: 200, description: 'Company details retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Company not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   async companyWithUserList(@Param('id', ParseIntPipe) id: number) {
     const user = await this.companyService.findCompanyWithUserList(id);
     return { message: 'Company users data', data: user };
