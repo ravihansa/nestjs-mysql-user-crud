@@ -35,12 +35,14 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(id, updateUserDto);
+    const user = await this.usersService.update(id, updateUserDto);
+    return { message: 'User updated successfully', data: user };
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.remove(id);
+    await this.usersService.remove(id);
+    return { message: 'User deleted successfully', data: null };
   }
 
   @Post('company')

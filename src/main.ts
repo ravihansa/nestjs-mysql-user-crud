@@ -11,6 +11,7 @@ import { swgrConfig, swgrOptions, swgrCustomOptions } from './common/utils/swagg
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   const logger = app.get<Logger>(WINSTON_MODULE_PROVIDER);
   app.setGlobalPrefix('api/v1');
   app.useGlobalInterceptors(new LoggingInterceptor(logger), new ResponseInterceptor());
