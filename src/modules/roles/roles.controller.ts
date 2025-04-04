@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { CreateRolePermissionDto } from './dto/create-role-with-permission.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -32,4 +33,11 @@ export class RolesController {
   remove(@Param('id') id: string) {
     return this.rolesService.remove(+id);
   }
+
+  @Post('permission')
+  async createRoleWithPermissions(@Body() createRolePermissionDto: CreateRolePermissionDto) {
+    const role = await this.rolesService.createRoleWithPermissions(createRolePermissionDto);
+    return { message: 'Role created with permissions successfully', data: role };
+  }
+
 }

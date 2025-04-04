@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Permission } from './../permissions/entities/permission.entity';
+import { CreateRolePermissionDto } from './dto/create-role-with-permission.dto';
 
 @Injectable()
 export class RolesService {
@@ -32,5 +33,28 @@ export class RolesService {
 
   remove(id: number) {
     return `This action removes a #${id} role`;
+  }
+
+  async createRoleWithPermissions(createRolePermissionDto: CreateRolePermissionDto): Promise<Role> {
+    const { name, description, permissionsList } = createRolePermissionDto;
+
+    // Check if the permissions already exist, otherwise send an error
+    const permissionEntities = await Promise.all(
+      permissionsList.map(async (permissionName) => {
+        let perm = await this.permissionRepository.findOne({ where: { name: permissionName } });
+        if (!perm) {
+          throw new NotFoundException(`Permission with name ${permissionName} not found`);
+        }
+        return perm;
+      }),
+    );
+
+    // Create the Role with the provided existing permissions
+    const newRole = this.roleRepository.create({
+      name,
+      description,
+      permissions: permissionEntities,
+    });
+    return this.roleRepository.save(newRole);
   }
 }
