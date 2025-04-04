@@ -14,6 +14,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
 import { WinstonModule } from 'nest-winston';
 import { winstonLogger } from './common/utils/logger';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -49,7 +51,9 @@ import { winstonLogger } from './common/utils/logger';
     UsersModule,
     CompanyModule,
     AuthModule,
-    JwtModule],
+    JwtModule,
+    RolesModule,
+    PermissionsModule],
   controllers: [AppController],
   providers: [AppService,
     AuthService,

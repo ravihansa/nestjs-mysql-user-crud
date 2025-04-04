@@ -1,5 +1,6 @@
 import { Company } from '../../companies/entities/company.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Role } from '../../roles/entities/role.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable, JoinColumn } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -21,11 +22,21 @@ export class User {
     @Column({ select: false })
     password: string;
 
+    @Column()
+    roleId: number;
+
+    @Column({ default: true })
+    isActive: boolean;
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToOne(() => Role, role => role.users)
+    @JoinColumn({ name: 'roleId' })
+    role: Role;
 
     @ManyToMany(() => Company,
         (company) => company.users)
