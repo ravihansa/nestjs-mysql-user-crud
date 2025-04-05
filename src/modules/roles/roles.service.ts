@@ -39,7 +39,7 @@ export class RolesService {
     const { name, description, permissionsList } = createRolePermissionDto;
 
     // Check if the permissions already exist, otherwise send an error
-    const permissionEntities = await Promise.all(
+    const permissionEntities: Permission[] = await Promise.all(
       permissionsList.map(async (permissionName) => {
         let perm = await this.permissionRepository.findOne({ where: { name: permissionName } });
         if (!perm) {
@@ -49,12 +49,28 @@ export class RolesService {
       }),
     );
 
-    // Create the Role with the provided existing permissions
-    const newRole = this.roleRepository.create({
-      name,
-      description,
-      permissions: permissionEntities,
-    });
-    return this.roleRepository.save(newRole);
+    const role = await this.roleRepository.findOne({ where: { name: name }, relations: ['permissions'] });
+    if (role) {
+      // Add new permissions to the existing role
+      if (role?.permissions?.length) {
+        const currentPermissionIds: Set<number> = new Set(role.permissions.map(p => p.id));
+        permissionEntities.map(item => {
+          if (!currentPermissionIds.has(item.id)) {
+            role.permissions.push(item);
+          }
+        });
+      } else {
+        role.permissions = permissionEntities;
+      }
+      return await this.roleRepository.save(role);
+    } else {
+      // Create a role with the provided existing permissions
+      const newRole = this.roleRepository.create({
+        name,
+        description,
+        permissions: permissionEntities,
+      });
+      return await this.roleRepository.save(newRole);
+    }
   }
 }
