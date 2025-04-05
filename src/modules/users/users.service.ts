@@ -3,6 +3,8 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Role } from './../roles/entities/role.entity';
+import { RolesService } from './../roles/roles.service';
 import { hashPassword } from '../../common/utils/hashPassword';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Company } from '../companies/entities/company.entity';
@@ -12,7 +14,8 @@ import { CreateUserCompanyDto } from './dto/create-user-company.dto';
 export class UsersService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
-        @InjectRepository(Company) private readonly companyRepository: Repository<Company>
+        @InjectRepository(Company) private readonly companyRepository: Repository<Company>,
+        private readonly rolesService: RolesService
     ) { }
 
     async findAll(): Promise<User[]> {
@@ -50,10 +53,16 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto): Promise<User> {
-        const hashedPw = await hashPassword(createUserDto.password);
+        const { fName, lName, userName, email, password, roleName } = createUserDto;
+        const hashedPw = await hashPassword(password);
+        const role: Role = await this.rolesService.findRoleByName(roleName);
         const user = this.userRepository.create({
-            ...createUserDto,
-            password: hashedPw
+            fName,
+            lName,
+            userName,
+            email,
+            password: hashedPw,
+            role: role
         });
         return await this.userRepository.save(user);
     }
@@ -70,8 +79,9 @@ export class UsersService {
     }
 
     async createUserWithCompany(createUserCompanyDto: CreateUserCompanyDto): Promise<User> {
-        const { fName, lName, userName, email, password, companyData } = createUserCompanyDto;
+        const { fName, lName, userName, email, password, roleName, companyData } = createUserCompanyDto;
         const hashedPw = await hashPassword(password);
+        const role: Role = await this.rolesService.findRoleByName(roleName);
         // Check if companies already exist, otherwise create new ones
         const companyEntities = await Promise.all(
             companyData.map(async (companyDto) => {
@@ -91,6 +101,7 @@ export class UsersService {
             userName,
             email,
             password: hashedPw,
+            role: role,
             companies: companyEntities,
         });
 

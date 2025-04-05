@@ -25,6 +25,11 @@ export const CreateUserCompanySchema = Joi.object({
         'string.min': 'Password must be at least 3 characters',
         'string.max': 'Password must be at most 10 characters',
     }),
+    roleName: Joi.string().min(3).max(100).required().messages({
+        'string.empty': 'Role name is required',
+        'string.min': 'Role name must be at least 3 characters',
+        'string.max': 'Role name must be at most 100 characters',
+    }),
     companyData: Joi.array()
         .items(
             Joi.object({
