@@ -29,8 +29,15 @@ export class UsersService {
     async findOne(usrId: number): Promise<User> {
         const user = await this.userRepository.findOne({
             where: { id: usrId },
+            relations: ['role', 'role.permissions'],
             select: {
-                id: true, fName: true, lName: true, userName: true, email: true
+                id: true, fName: true, lName: true, userName: true, email: true,
+                role: {
+                    id: true, name: true,
+                    permissions: {
+                        id: true, name: true
+                    }
+                }
             }
         });
         if (!user) {
@@ -42,8 +49,26 @@ export class UsersService {
     async findUserByUserName(usrName: string): Promise<User> {
         const user = await this.userRepository.findOne({
             where: { userName: usrName },
+            relations: {
+                role: {
+                    permissions: true,
+                },
+            },
             select: {
-                id: true, fName: true, lName: true, userName: true, email: true, password: true
+                id: true,
+                fName: true,
+                lName: true,
+                userName: true,
+                email: true,
+                password: true,
+                role: {
+                    id: true,
+                    name: true,
+                    permissions: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         });
         if (!user) {

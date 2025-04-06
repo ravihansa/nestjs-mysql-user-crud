@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LogInUserDto } from './dto/login-auth.dto';
 import { UsersService } from '../users/users.service';
+import { User } from './../users/entities/user.entity';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
@@ -22,8 +23,14 @@ export class AuthService {
         }
     }
 
-    async logIn(user: any) {
-        const payload = { sub: user.id, email: user.email };
+    async logIn(user: User) {
+        const permList = user.role?.permissions?.map((perm) => perm.name);
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            role: user.role?.name,
+            permissions: permList
+        };
         return {
             accessToken: this.jwtService.sign(payload),
         };
