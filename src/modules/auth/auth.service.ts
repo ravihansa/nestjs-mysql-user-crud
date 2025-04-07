@@ -12,12 +12,12 @@ export class AuthService {
         private readonly jwtService: JwtService,
     ) { }
 
-    async validateUser(logInUserDto: LogInUserDto): Promise<any> {
+    async validateUser(logInUserDto: LogInUserDto): Promise<User> {
         const { userName, password } = logInUserDto;
         const user = await this.usersService.findUserByUserName(userName);
         if (user && (await bcrypt.compare(password, user.password))) {
             const { password, ...usrWithoutPassword } = user;
-            return usrWithoutPassword;
+            return usrWithoutPassword as User;
         } else {
             throw new UnauthorizedException();
         }
@@ -34,5 +34,11 @@ export class AuthService {
         return {
             accessToken: this.jwtService.sign(payload),
         };
+    }
+
+    async userPermissions(userId: number): Promise<Set<string>> {
+        const user = await this.usersService.findOne(userId);
+        const permList = user.role?.permissions?.map((perm) => perm.name);
+        return new Set(permList);
     }
 }

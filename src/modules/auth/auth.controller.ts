@@ -1,4 +1,4 @@
-import { Public } from './public.decorator';
+import { Public } from './decorators/public.decorator';
 import { AuthService } from './auth.service';
 import { LogInUserDto } from './dto/login-auth.dto';
 import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
