@@ -6,6 +6,7 @@ import { UsersController } from './users.controller';
 import { RolesModule } from './../roles/roles.module';
 import { Company } from '../companies/entities/company.entity';
 import { AuthModule } from '../auth/auth.module';
+import { UsersTransformer } from './transformers/users.transformer';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { AuthModule } from '../auth/auth.module';
     RolesModule,
     forwardRef(() => AuthModule)], // Used the forwardRef() utility function to resolve circular dependencies between auth and users modules
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, UsersTransformer],
   exports: [UsersService],
 })
 

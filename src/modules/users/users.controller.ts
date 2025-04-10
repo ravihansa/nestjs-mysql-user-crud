@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 // import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../auth/guards/permission.guard';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { UsersTransformer } from './transformers/users.transformer';
 import { CreateUserCompanyDto } from './dto/create-user-company.dto';
 import { JoiValidationPipe } from '../../common/pipes/joi-validation.pipe';
 import { CreateUserCompanySchema } from './schemas/create-user-company.schema';
@@ -13,7 +14,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGua
 @Controller('users')
 @UseGuards(PermissionGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly usersTransformer: UsersTransformer
+  ) { }
 
   @Get('list')
   @RequirePermissions('view-user')
@@ -26,7 +30,7 @@ export class UsersController {
   @RequirePermissions('view-user')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findOne(id);
-    return { message: 'User data', data: user };
+    return { message: 'User data', data: this.usersTransformer.transformUserData(user) };
   }
 
   @Post()
