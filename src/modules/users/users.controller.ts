@@ -23,7 +23,7 @@ export class UsersController {
   @RequirePermissions('view-user')
   async findAll() {
     const usersList = await this.usersService.findAll();
-    return { message: 'Users list', data: usersList };
+    return { message: 'Users list', data: this.usersTransformer.transformUsersData(usersList) };
   }
 
   @Get(':id')

@@ -8,11 +8,11 @@ export class UsersTransformer {
         return {
             id: userData.id,
             fName: userData.fName,
-            lName: userData.lName,
+            lName: userData.lName ?? '',
             userName: userData.userName,
-            email: userData.email,
-            role: userData.role.name,
-            permissions: userData.role.permissions.map(permission => permission.name)
+            email: userData.email ?? '',
+            role: userData.role?.name ?? '',
+            permissions: userData.role?.permissions.map(permission => permission.name)
         };
     }
 

@@ -20,8 +20,15 @@ export class UsersService {
 
     async findAll(): Promise<User[]> {
         return await this.userRepository.find({
+            relations: ['role', 'role.permissions'],
             select: {
-                id: true, fName: true, lName: true, userName: true, email: true
+                id: true, fName: true, lName: true, userName: true, email: true,
+                role: {
+                    id: true, name: true,
+                    permissions: {
+                        id: true, name: true
+                    }
+                }
             }
         });
     }
