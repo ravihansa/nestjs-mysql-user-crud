@@ -1,17 +1,16 @@
 import { Repository } from 'typeorm';
-import { Cache } from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CustomCache } from '../../common/utils/cache/customCache.service';
 
 @Injectable()
 export class CompanyService {
     constructor(
         @InjectRepository(Company) private readonly companyRepository: Repository<Company>,
-        @Inject(CACHE_MANAGER) private cacheManager: Cache
+        private readonly customCache: CustomCache
     ) { }
 
     async findAll(): Promise<Company[]> {
@@ -44,7 +43,7 @@ export class CompanyService {
 
     async findCompanyWithUserList(comId: number): Promise<Company> {
         const cacheKey = `company__findCompanyWithUserList__${comId}`;
-        const cachedCmpnyUsr = await this.cacheManager.get<Company>(cacheKey);
+        const cachedCmpnyUsr = await this.customCache.getCache(cacheKey);
         if (cachedCmpnyUsr) {
             return cachedCmpnyUsr as Company;
         }
@@ -61,10 +60,10 @@ export class CompanyService {
             ])
             .where('company.id = :comId', { comId })
             .getOne();
-        await this.cacheManager.set(cacheKey, company, 10000); // Cache ttl is 10secs
         if (!company) {
             throw new NotFoundException(`Company with ID ${comId} not found`);
         }
+        await this.customCache.setCache(cacheKey, company, 10000); // Cache ttl is 10secs
         return company;
     }
 }
